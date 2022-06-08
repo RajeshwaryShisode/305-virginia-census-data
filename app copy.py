@@ -1,7 +1,6 @@
 import dash
 from dash import dcc, html
 import plotly.graph_objs as go
-import plotly.express as px
 from dash.dependencies import Input, Output, State
 import pandas as pd
 
@@ -13,7 +12,7 @@ with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-c
 
 ########### Define a few variables ######
 
-tabtitle = '3D Virginia Counties HW'
+tabtitle = 'Virginia Counties'
 sourceurl = 'https://www.kaggle.com/muonneutrino/us-census-demographic-data'
 githublink = 'https://github.com/austinlasseter/dash-virginia-counties'
 varlist=['TotalPop', 'Men', 'Women', 'Hispanic',
@@ -67,14 +66,20 @@ app.layout = html.Div(children=[
 def display_results(selected_value):
     valmin=df[selected_value].min()
     valmax=df[selected_value].max()
+    fig = go.Figure(go.Choroplethmapbox(geojson=counties,
+                                    locations=df['FIPS'],
+                                    z=df[selected_value],
+                                    colorscale='Blues',
+                                    text=df['County'],
+                                    zmin=valmin,
+                                    zmax=valmax,
+                                    marker_line_width=0))
+    fig.update_layout(mapbox_style="carto-positron",
+                      mapbox_zoom=5.8,
+                      mapbox_center = {"lat": 38.0293, "lon": -79.4428})
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
 # https://community.plot.ly/t/what-colorscales-are-available-in-plotly-and-which-are-the-default/2079
-
-
-    fig = px.scatter_3d(df, x='IncomePerCap', y='Men', z=selected_value, size='TotalPop', color='Women',
-                    hover_data=['Office'])
-    fig.update_layout(scene_zaxis_type="log")
-   
-
     return fig
 
 
